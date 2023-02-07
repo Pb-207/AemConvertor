@@ -71,5 +71,7 @@ if __name__ == '__main__':
         file_aem.close()
         file_obj.close()
         print('\n', 'Done')
+        input()
     elif option == 2:
         print('Obj2aem is not supported yet, please wait...')
+        input()
