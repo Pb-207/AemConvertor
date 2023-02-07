@@ -4,22 +4,21 @@ import struct
 from numpy import float32
 
 
-file_in = ""
 def select_file():
     option = int(input("Please choose the feature ( 1.aem2obj | 2.obj2aem ): "))
     # option = 1
     if option == 1:
 
         while True:
-            Converete_existing_models_yn = input('do you want to override existing obj files?(y/n)')
-            if Converete_existing_models_yn == 'y':
+            Converete_existing_models_yn = input('do you want to override existing obj files?(override/n)')
+            if Converete_existing_models_yn == 'override':
                 Converete_existing_models = True
                 break
             elif Converete_existing_models_yn == 'n':
                 Converete_existing_models = False
                 break
             else:
-                print("Invalid input, please enter either 'y' or 'n'.")
+                print("Invalid input, please enter either 'override' or 'n'.")
 
 
 
@@ -66,13 +65,19 @@ def ask_multible_files(Converete_existing_models):
                 file_in_paths.append(file_path)
 
         for file_in in file_in_paths:
-            if file_in.endswith('.aem') or file_in.endswith('.obj'):
+            if file_in.endswith('.aem'):
                 file_out = file_in.replace(".aem", ".obj")
                 if os.path.exists(file_out) and Converete_existing_models == True:
                     os.remove(file_out)
-                if file_in.endswith('.aem'):
+                    #if file_in.endswith('.aem') and Converete_existing_models == True:
                     print('converting'+file_in)
                     convert_aem_to_obj(file_in)
+                #elif os.path.exists(file_out) and Converete_existing_models == False:
+                #    print(file_in + 'alredy converted')
+                elif not os.path.exists(file_out):
+                    print('converting'+file_in)
+                    convert_aem_to_obj(file_in)
+
 
 
 def convert_aem_to_obj(file_in):
