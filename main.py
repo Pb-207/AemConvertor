@@ -6,9 +6,11 @@ from numpy import float32
 if __name__ == '__main__':
     option = int(input("Please choose the feature ( 1.aem2obj | 2.obj2aem ): "))
     # option = 1
-    if option == 1:
-        file_in = input("Please input the path of the file to be converted: ")
+    while option == 1:
+        file_in = input("Please input the path of the file to be converted(Press Enter to exit):")
         file_out = file_in.replace(".aem", ".obj")
+        if not file_in:
+            break
         if os.path.exists(file_out):
             print('Warning:', file_out, 'already exists and will be covered! Press Enter to continue.')
             input()
@@ -71,7 +73,6 @@ if __name__ == '__main__':
         file_aem.close()
         file_obj.close()
         print('\n', 'Done')
-        input()
-    elif option == 2:
+    if option == 2:
         print('Obj2aem is not supported yet, please wait...')
         input()
