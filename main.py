@@ -51,7 +51,7 @@ def ask_one_file(Converete_existing_models):
                 os.remove(file_out)
             if file_in.endswith('.aem'):
                 try:
-                    print('converting'+file_in)
+                    print('converting'+os.path.basename(file_in))
                     convert_aem_to_obj(file_in)
                 except Exception as e:
                     print("An unexpected error occurred:", e)
@@ -59,37 +59,40 @@ def ask_one_file(Converete_existing_models):
 
 
 def ask_multible_files(Converete_existing_models):
-        root_dir = input('imput the root path (the location wher all files below get converted)')
+    root_dir = input('imput the root path (the location wher all files below get converted)')
 
-        file_in_paths = []
-        error_files = []
-        for dir_path, dir_names, file_names in os.walk(root_dir):
-            for file_name in file_names:
-                file_path = os.path.join(dir_path, file_name)
-                file_in_paths.append(file_path)
+    file_in_paths = []
+    for dir_path, dir_names, file_names in os.walk(root_dir):
+        for file_name in file_names:
+            file_path = os.path.join(dir_path, file_name)
+            file_in_paths.append(file_path)
 
-        for file_in in file_in_paths:
-            if file_in.endswith('.aem'):
-                file_out = file_in.replace(".aem", ".obj")
-                if os.path.exists(file_out) and Converete_existing_models == True:
-                    os.remove(file_out)
-                    try:
-                        print('converting'+file_in)
-                        convert_aem_to_obj(file_in)
-                    except Exception as e:
-                        print("An unexpected error occurred:", e)
-                        error_files.append(file_in)
-                #elif os.path.exists(file_out) and Converete_existing_models == False:
-                #    print(file_in + 'alredy converted')
-                elif not os.path.exists(file_out):
-                    try:
-                        print('converting'+file_in)
-                        convert_aem_to_obj(file_in)
-                    except Exception as e:
-                        print("An unexpected error occurred:", e)
-                        error_files.append(file_in)
+    error_files = []
+    for file_in in file_in_paths:
+        if file_in.endswith('.aem'):
+            file_out = file_in.replace(".aem", ".obj")
+            if os.path.exists(file_out) and Converete_existing_models == True:
+                os.remove(file_out)
+                try:
+                    print('converting'+os.path.relpath(file_in, root_dir))
+                    convert_aem_to_obj(file_in)
+                except Exception as e:
+                    error_files.append(os.path.relpath(file_in, root_dir))
+                    print("An unexpected error occurred with file:", os.path.relpath(file_in, root_dir))
+            #elif os.path.exists(file_out) and Converete_existing_models == False:
+            #    print(file_in + 'alredy converted')
+            elif not os.path.exists(file_out):
+                try:
+                    print('converting'+os.path.relpath(file_in, root_dir))
+                    convert_aem_to_obj(file_in)
+                except Exception as e:
+                    error_files.append(os.path.relpath(file_in, root_dir))
+                    print("An unexpected error occurred with file:", os.path.relpath(file_in, root_dir))
+    print("Finished converting. Errors encountered in the following files:")
+    for i in error_files:
+        print(i)
+    print('error in list formart: ',error_files)
 
-        print("The following files caused errors:", error_files)
 
     
 
