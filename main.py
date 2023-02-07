@@ -50,8 +50,11 @@ def ask_one_file(Converete_existing_models):
             if os.path.exists(file_out) and Converete_existing_models == True:
                 os.remove(file_out)
             if file_in.endswith('.aem'):
-                print('converting'+file_in)
-                convert_aem_to_obj(file_in)
+                try:
+                    print('converting'+file_in)
+                    convert_aem_to_obj(file_in)
+                except Exception as e:
+                    print("An unexpected error occurred:", e)
 
 
 
@@ -59,6 +62,7 @@ def ask_multible_files(Converete_existing_models):
         root_dir = input('imput the root path (the location wher all files below get converted)')
 
         file_in_paths = []
+        error_files = []
         for dir_path, dir_names, file_names in os.walk(root_dir):
             for file_name in file_names:
                 file_path = os.path.join(dir_path, file_name)
@@ -69,14 +73,25 @@ def ask_multible_files(Converete_existing_models):
                 file_out = file_in.replace(".aem", ".obj")
                 if os.path.exists(file_out) and Converete_existing_models == True:
                     os.remove(file_out)
-                    #if file_in.endswith('.aem') and Converete_existing_models == True:
-                    print('converting'+file_in)
-                    convert_aem_to_obj(file_in)
+                    try:
+                        print('converting'+file_in)
+                        convert_aem_to_obj(file_in)
+                    except Exception as e:
+                        print("An unexpected error occurred:", e)
+                        error_files.append(file_in)
                 #elif os.path.exists(file_out) and Converete_existing_models == False:
                 #    print(file_in + 'alredy converted')
                 elif not os.path.exists(file_out):
-                    print('converting'+file_in)
-                    convert_aem_to_obj(file_in)
+                    try:
+                        print('converting'+file_in)
+                        convert_aem_to_obj(file_in)
+                    except Exception as e:
+                        print("An unexpected error occurred:", e)
+                        error_files.append(file_in)
+
+        print("The following files caused errors:", error_files)
+
+    
 
 
 
