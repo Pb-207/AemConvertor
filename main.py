@@ -210,10 +210,10 @@ def convert_obj_to_aem(file_in):
                 v_id.append(short(file_read[i].split()[j + 1].split('/')[0]) - 1)
                 vt_id.append(short(file_read[i].split()[j + 1].split('/')[1]) - 1)
                 vn_id.append(short(file_read[i].split()[j + 1].split('/')[2]) - 1)
-    if v_x and vt_x and vn_x and v_id and len(vt_id) == len(v_id) and len(vn_id) == len(v_id) and len(v_id) < 65536:
+    if v_x and vt_x and vn_x and v_id and len(vt_id) == len(v_id) and len(vn_id) == len(v_id) and len(v_id) < 32768:
         v_num = short(len(v_id))
         file_aem.write(struct.pack("h", v_num))
-        print('\n', '# Faces', v_num)
+        print('\n', '# Faces', v_num // 3)
         for i in tqdm(range(v_num)):
             file_aem.write(struct.pack("h", short(i)))
         file_aem.write(struct.pack("h", v_num))
@@ -231,10 +231,10 @@ def convert_obj_to_aem(file_in):
             file_aem.write(struct.pack("f", vn_x[vn_id[i]]))
             file_aem.write(struct.pack("f", vn_y[vn_id[i]]))
             file_aem.write(struct.pack("f", vn_z[vn_id[i]]))
-    elif len(v_id) > 65535:
-        print('/n', 'Error: Too many vertices to convert, please use low-poly model')
+    elif len(v_id) > 32767:
+        print('\n', 'Error: Too many vertices to convert, please use low-poly model')
     else:
-        print('/n', 'Error: UVs or Normals data lost. Please check obj file')
+        print('\n', 'Error: UVs or Normals data lost. Please check obj file')
 
     header = file_header.read(56)
     file_aem.write(header)
