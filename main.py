@@ -1,7 +1,7 @@
 import os
 from tqdm import tqdm
 import struct
-from numpy import float32, short
+from numpy import float32, ushort
 
 
 def select_file():
@@ -116,7 +116,7 @@ def convert_aem_to_obj(file_in):
     file_aem = open(file_in, 'rb')
     file_obj = open(file_out, 'a')
     file_aem.seek(24)
-    v_num = struct.unpack("h", file_aem.read(2))[0]
+    v_num = struct.unpack("H", file_aem.read(2))[0]
     s = '# Vertices ' + str(v_num) + '\n'
     file_obj.write(s)
     print('\n', '# Vertices', v_num)
@@ -207,16 +207,16 @@ def convert_obj_to_aem(file_in):
             vn_z.append(float32(file_read[i].split()[3]))
         elif file_read[i][0] == 'f':
             for j in range(3):
-                v_id.append(short(file_read[i].split()[j + 1].split('/')[0]) - 1)
-                vt_id.append(short(file_read[i].split()[j + 1].split('/')[1]) - 1)
-                vn_id.append(short(file_read[i].split()[j + 1].split('/')[2]) - 1)
-    if v_x and vt_x and vn_x and v_id and len(vt_id) == len(v_id) and len(vn_id) == len(v_id) and len(v_id) < 32768:
-        v_num = short(len(v_id))
-        file_aem.write(struct.pack("h", v_num))
+                v_id.append(ushort(file_read[i].split()[j + 1].split('/')[0]) - 1)
+                vt_id.append(ushort(file_read[i].split()[j + 1].split('/')[1]) - 1)
+                vn_id.append(ushort(file_read[i].split()[j + 1].split('/')[2]) - 1)
+    if v_x and vt_x and vn_x and v_id and len(vt_id) == len(v_id) and len(vn_id) == len(v_id) and len(v_id) < 65536:
+        v_num = ushort(len(v_id))
+        file_aem.write(struct.pack("H", v_num))
         print('\n', '# Faces', v_num // 3)
         for i in tqdm(range(v_num)):
-            file_aem.write(struct.pack("h", short(i)))
-        file_aem.write(struct.pack("h", v_num))
+            file_aem.write(struct.pack("H", ushort(i)))
+        file_aem.write(struct.pack("H", v_num))
         print('\n', '# Vertices', v_num)
         for i in tqdm(range(v_num)):
             file_aem.write(struct.pack("f", v_x[v_id[i]]))
@@ -231,7 +231,7 @@ def convert_obj_to_aem(file_in):
             file_aem.write(struct.pack("f", vn_x[vn_id[i]]))
             file_aem.write(struct.pack("f", vn_y[vn_id[i]]))
             file_aem.write(struct.pack("f", vn_z[vn_id[i]]))
-    elif len(v_id) > 32767:
+    elif len(v_id) > 65535:
         print('\n', 'Error: Too many vertices to convert, please use low-poly model')
     else:
         print('\n', 'Error: UVs or Normals data lost. Please check obj file')
