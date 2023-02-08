@@ -3,18 +3,103 @@ from tqdm import tqdm
 import struct
 from numpy import float32
 
-if __name__ == '__main__':
+
+def select_file():
     option = int(input("Please choose the feature ( 1.aem2obj | 2.obj2aem ): "))
     # option = 1
-    while option == 1:
+    if option == 1:
+
+        while True:
+            Converete_existing_models_yn = input('do you want to override existing obj files?(override/n)')
+            if Converete_existing_models_yn == 'override':
+                Converete_existing_models = True
+                break
+            elif Converete_existing_models_yn == 'n':
+                Converete_existing_models = False
+                break
+            else:
+                print("Invalid input, please enter either 'override' or 'n'.")
+
+
+
+        while True:
+            one_or_multible = int(input('do u waant to convert 1 file or multible files? (1/2)'))
+            if one_or_multible == 1:
+                ask_one_file(Converete_existing_models)
+                break
+            elif one_or_multible == 2:
+                ask_multible_files(Converete_existing_models)
+                break
+            else:
+                print("Invalid input, please enter either 1 or 2.")
+
+
+    if option == 2:
+        print('Obj2aem is not supported yet, please wait...')
+        input()
+
+
+
+
+def ask_one_file(Converete_existing_models):
+
         file_in = input("Please input the path of the file to be converted(Press Enter to exit):")
+            
+        if file_in.endswith('.aem') or file_in.endswith('.obj'):
+            file_out = file_in.replace(".aem", ".obj")
+            if os.path.exists(file_out) and Converete_existing_models == True:
+                os.remove(file_out)
+            if file_in.endswith('.aem'):
+                try:
+                    print('converting'+os.path.basename(file_in))
+                    convert_aem_to_obj(file_in)
+                except Exception as e:
+                    print("An unexpected error occurred:", e)
+
+
+
+def ask_multible_files(Converete_existing_models):
+    root_dir = input('imput the root path (the location wher all files below get converted)')
+
+    file_in_paths = []
+    for dir_path, dir_names, file_names in os.walk(root_dir):
+        for file_name in file_names:
+            file_path = os.path.join(dir_path, file_name)
+            file_in_paths.append(file_path)
+
+    error_files = []
+    for file_in in file_in_paths:
+        if file_in.endswith('.aem'):
+            file_out = file_in.replace(".aem", ".obj")
+            if os.path.exists(file_out) and Converete_existing_models == True:
+                os.remove(file_out)
+                try:
+                    print('converting'+os.path.relpath(file_in, root_dir))
+                    convert_aem_to_obj(file_in)
+                except Exception as e:
+                    error_files.append(os.path.relpath(file_in, root_dir))
+                    print("An unexpected error occurred with file:", os.path.relpath(file_in, root_dir))
+            #elif os.path.exists(file_out) and Converete_existing_models == False:
+            #    print(file_in + 'alredy converted')
+            elif not os.path.exists(file_out):
+                try:
+                    print('converting'+os.path.relpath(file_in, root_dir))
+                    convert_aem_to_obj(file_in)
+                except Exception as e:
+                    error_files.append(os.path.relpath(file_in, root_dir))
+                    print("An unexpected error occurred with file:", os.path.relpath(file_in, root_dir))
+    print("Finished converting. Errors encountered in the following files:")
+    for i in error_files:
+        print(i)
+    print('error in list formart: ',error_files)
+
+
+    
+
+
+
+def convert_aem_to_obj(file_in):
         file_out = file_in.replace(".aem", ".obj")
-        if not file_in:
-            break
-        if os.path.exists(file_out):
-            print('Warning:', file_out, 'already exists and will be covered! Press Enter to continue.')
-            input()
-            os.remove(file_out)
         file_aem = open(file_in, 'rb')
         file_obj = open(file_out, 'a')
         file_aem.seek(24)
@@ -73,6 +158,9 @@ if __name__ == '__main__':
         file_aem.close()
         file_obj.close()
         print('\n', 'Done')
-    if option == 2:
-        print('Obj2aem is not supported yet, please wait...')
-        input()
+
+
+
+
+if __name__ == '__main__':
+    select_file()
