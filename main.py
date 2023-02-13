@@ -246,6 +246,8 @@ def convert_obj_to_aem(file_in):
 
 if __name__ == '__main__':
     global option
-    option = int(input("Please choose the feature ( 1.aem2obj | 2.obj2aem ): "))
-    select_file()
-    input()
+    while True:
+        option = int(input("Please choose the feature ( 0.exit | 1.aem2obj | 2.obj2aem ): "))
+        if not option:
+            break
+        select_file()
