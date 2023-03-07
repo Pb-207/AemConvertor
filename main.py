@@ -241,32 +241,32 @@ def convert_obj_to_aem(file_in):
         end = file_header.read(56)
         file_aem.write(end)
         while epoch:
-        	epoch = epoch - 1
-        	file_aem.write(header2)
-        	file_aem.write(struct.pack("H", ushort(65535)))
-        	print('\n', 'Writing fragment #', (epochs - epoch))
-        	print('\n', '# Faces', 65535 // 3)
-        	for i in tqdm(range(65535)):
-        		file_aem.write(struct.pack("H", ushort(i)))
-        	file_aem.write(struct.pack("H", ushort(65535)))
-        	print('\n', '# Vertices', 65535)
-        	for i in tqdm(range(65535)):
-        	   	k = i + v_num + epoch * 65535
-        	   	file_aem.write(struct.pack("f", v_x[v_id[k]]))
-        	   	file_aem.write(struct.pack("f", v_y[v_id[k]]))
-        	   	file_aem.write(struct.pack("f", v_z[v_id[k]]))
-        	print('\n', '# UVs', 65535)
-        	for i in tqdm(range(65535)):
-        	   	k = i + v_num + epoch * 65535
-        	   	file_aem.write(struct.pack("f", vt_x[vt_id[k]]))
-        	   	file_aem.write(struct.pack("f", vt_y[vt_id[k]]))
-        	print('\n', '# Normals', 65535)
-        	for i in tqdm(range(65535)):
-        	   	k = i + v_num + epoch * 65535
-        	   	file_aem.write(struct.pack("f", vn_x[vn_id[k]]))
-        	   	file_aem.write(struct.pack("f", vn_y[vn_id[k]]))
-        	   	file_aem.write(struct.pack("f", vn_z[vn_id[k]]))
-        	file_aem.write(end)
+            epoch = epoch - 1
+            file_aem.write(header2)
+            file_aem.write(struct.pack("H", ushort(65535)))
+            print('\n', 'Writing fragment #', (epochs - epoch))
+            print('\n', '# Faces', 65535 // 3)
+            for i in tqdm(range(65535)):
+                file_aem.write(struct.pack("H", ushort(i)))
+            file_aem.write(struct.pack("H", ushort(65535)))
+            print('\n', '# Vertices', 65535)
+            for i in tqdm(range(65535)):
+                k = i + v_num + epoch * 65535
+                file_aem.write(struct.pack("f", v_x[v_id[k]]))
+                file_aem.write(struct.pack("f", v_y[v_id[k]]))
+                file_aem.write(struct.pack("f", v_z[v_id[k]]))
+            print('\n', '# UVs', 65535)
+            for i in tqdm(range(65535)):
+                k = i + v_num + epoch * 65535
+                file_aem.write(struct.pack("f", vt_x[vt_id[k]]))
+                file_aem.write(struct.pack("f", vt_y[vt_id[k]]))
+            print('\n', '# Normals', 65535)
+            for i in tqdm(range(65535)):
+                k = i + v_num + epoch * 65535
+                file_aem.write(struct.pack("f", vn_x[vn_id[k]]))
+                file_aem.write(struct.pack("f", vn_y[vn_id[k]]))
+                file_aem.write(struct.pack("f", vn_z[vn_id[k]]))
+            file_aem.write(end)
     elif len(v_id) > 4294836225:
         print('\n', 'Error: Too many vertices to convert, please use low-poly model')
     else:
