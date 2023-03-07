@@ -1,7 +1,7 @@
 import os
 from tqdm import tqdm
 import struct
-from numpy import float32, ushort
+from numpy import float32, ushort, uint32
 
 
 def select_file():
@@ -176,10 +176,12 @@ def convert_aem_to_obj(file_in):
 def convert_obj_to_aem(file_in):
     file_out = file_in.replace(".obj", ".aem")
     file_header = open('header.bin', 'rb')
-    header = file_header.read(24)
+    header1 = file_header.read(10)
+    model_type = file_header.read(2)
+    header2 = file_header.read(12)
     file_obj = open(file_in, 'r')
     file_aem = open(file_out, 'ab')
-    file_aem.write(header)
+    file_aem.write(header1)
     file_read = file_obj.readlines()
     v_x = []
     v_y = []
@@ -207,12 +209,17 @@ def convert_obj_to_aem(file_in):
             vn_z.append(float32(file_read[i].split()[3]))
         elif file_read[i][0] == 'f':
             for j in range(3):
-                v_id.append(ushort(file_read[i].split()[j + 1].split('/')[0]) - 1)
-                vt_id.append(ushort(file_read[i].split()[j + 1].split('/')[1]) - 1)
-                vn_id.append(ushort(file_read[i].split()[j + 1].split('/')[2]) - 1)
-    if v_x and vt_x and vn_x and v_id and len(vt_id) == len(v_id) and len(vn_id) == len(v_id) and len(v_id) < 65536:
-        v_num = ushort(len(v_id))
+                v_id.append(uint32(file_read[i].split()[j + 1].split('/')[0]) - 1)
+                vt_id.append(uint32(file_read[i].split()[j + 1].split('/')[1]) - 1)
+                vn_id.append(uint32(file_read[i].split()[j + 1].split('/')[2]) - 1)
+    if v_x and vt_x and vn_x and v_id and len(vt_id) == len(v_id) and len(vn_id) == len(v_id) and len(v_id) < 4294836226:
+        v_num = ushort(len(v_id) % 65535)
+        epoch = ushort(len(v_id) // 65535)
+        epochs = epoch
+        file_aem.write(struct.pack("H", (epoch + 1)))
+        file_aem.write(header2)
         file_aem.write(struct.pack("H", v_num))
+        print('\n', 'Writing fragment # 0')
         print('\n', '# Faces', v_num // 3)
         for i in tqdm(range(v_num)):
             file_aem.write(struct.pack("H", ushort(i)))
@@ -231,13 +238,40 @@ def convert_obj_to_aem(file_in):
             file_aem.write(struct.pack("f", vn_x[vn_id[i]]))
             file_aem.write(struct.pack("f", vn_y[vn_id[i]]))
             file_aem.write(struct.pack("f", vn_z[vn_id[i]]))
-    elif len(v_id) > 65535:
+        end = file_header.read(56)
+        file_aem.write(end)
+        while epoch:
+        	epoch = epoch - 1
+        	file_aem.write(header2)
+        	file_aem.write(struct.pack("H", ushort(65535)))
+        	print('\n', 'Writing fragment #', (epochs - epoch))
+        	print('\n', '# Faces', 65535 // 3)
+        	for i in tqdm(range(65535)):
+        		file_aem.write(struct.pack("H", ushort(i)))
+        	file_aem.write(struct.pack("H", ushort(65535)))
+        	print('\n', '# Vertices', 65535)
+        	for i in tqdm(range(65535)):
+        	   	k = i + v_num + epoch * 65535
+        	   	file_aem.write(struct.pack("f", v_x[v_id[k]]))
+        	   	file_aem.write(struct.pack("f", v_y[v_id[k]]))
+        	   	file_aem.write(struct.pack("f", v_z[v_id[k]]))
+        	print('\n', '# UVs', 65535)
+        	for i in tqdm(range(65535)):
+        	   	k = i + v_num + epoch * 65535
+        	   	file_aem.write(struct.pack("f", vt_x[vt_id[k]]))
+        	   	file_aem.write(struct.pack("f", vt_y[vt_id[k]]))
+        	print('\n', '# Normals', 65535)
+        	for i in tqdm(range(65535)):
+        	   	k = i + v_num + epoch * 65535
+        	   	file_aem.write(struct.pack("f", vn_x[vn_id[k]]))
+        	   	file_aem.write(struct.pack("f", vn_y[vn_id[k]]))
+        	   	file_aem.write(struct.pack("f", vn_z[vn_id[k]]))
+        	   	file_aem.write(end)
+    elif len(v_id) > 4294836225:
         print('\n', 'Error: Too many vertices to convert, please use low-poly model')
     else:
         print('\n', 'Error: UVs or Normals data lost. Please check obj file')
 
-    header = file_header.read(56)
-    file_aem.write(header)
     file_header.close()
     file_aem.close()
     file_obj.close()
