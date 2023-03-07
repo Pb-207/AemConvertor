@@ -266,7 +266,7 @@ def convert_obj_to_aem(file_in):
         	   	file_aem.write(struct.pack("f", vn_x[vn_id[k]]))
         	   	file_aem.write(struct.pack("f", vn_y[vn_id[k]]))
         	   	file_aem.write(struct.pack("f", vn_z[vn_id[k]]))
-        	   	file_aem.write(end)
+        	file_aem.write(end)
     elif len(v_id) > 4294836225:
         print('\n', 'Error: Too many vertices to convert, please use low-poly model')
     else:
